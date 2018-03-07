@@ -1,11 +1,10 @@
-// Importing Express, our web framework:
+// Import Express, our web framework:
 const express = require('express');
 
-// Import body-parser: node middleware that can parse POSTed form data:
+// Import body-parser, node middleware that can parse POSTed form data:
 const bodyParser = require('body-parser');
 
-// Import random-key
-// Random-Key Package (Used for generating a random key for each new URL)
+// Import random-key, a package used for generating a random key for each new URL:
 const random = require('random-key');
 
 // Import pg-promise, a PostgreSQL database interface
@@ -22,8 +21,11 @@ const db = pg(process.env.DATABASE_URL || 'postgres://psql:psql@localhost');
 app.set('view engine', 'ejs');
 app.set('views', `${__dirname}/views`);
 
+// Telling Express where our static files are located so it can serve them to the user:
 app.use(express.static(`${__dirname}/public`));
-app.use(bodyParser.urlencoded({ extended: false }));
+
+// More details here: https://github.com/expressjs/body-parser
+app.use(bodyParser.urlencoded({extended: false}));
 
 /* Routes refer to how an application responds to a client request to a particular endpoint,
 which is a URI (or path) and a specific HTTP request method (GET, POST, and so on). */
@@ -36,23 +38,29 @@ app.get('/', (req, res) => {
 });
 
 app.post('/shorten', (req, res) => {
-  const { url } = req.body;
+  // Grab the URL from the body of the request:
+  const {url} = req.body;
+  // Generate a random key using the random-key package:
   const key = random.generate(6);
 
-  // check that URL has been submitted
+  // Check that a URL has been submitted, otherwise redirect to /:
   if (typeof url === 'undefined') {
     res.redirect('/');
   }
 
-  // insert the new record, render view with link
+  // Insert a new record into the database.
+  // None indicates that we are not expecting any rows to be returned.
+  // Content between () is simply a SQL query:
   db.none('insert into entry(key, url) values($1, $2)', [key, url]).then((data) => {
-    res.render('shorten', { link: `${req.headers.origin}/${key}` });
+    // Add comments here.
+    res.render('shorten', {link: `${req.headers.origin}/${key}`});
   });
 });
 
 app.get('/:key', (req, res) => {
-  // Check for key and redirect
+  // Check for a key and then redirect the user:
   db
+    // one indicates that we're expecting a record to be returned
     .one('select * from entry where key = $1', req.params.key)
     .then((entry) => {
       // redirect to the appropriate url
@@ -64,4 +72,5 @@ app.get('/:key', (req, res) => {
     });
 });
 
+// Listen on the port defined above.
 app.listen(app.get('port'));
