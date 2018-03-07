@@ -50,7 +50,17 @@ app.post('/shorten', (req, res) => {
 });
 
 app.get('/:key', (req, res) => {
-  res.send(`Your key was: ${req.key}`);
+  // Check for key and redirect
+  db
+    .one('select * from entry where key = $1', req.params.key)
+    .then((entry) => {
+      // redirect to the appropriate url
+      res.redirect(entry.url);
+    })
+    .catch(() => {
+      // if no entry found, redirect home
+      res.redirect('/');
+    });
 });
 
 app.listen(app.get('port'));
