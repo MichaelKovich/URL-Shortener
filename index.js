@@ -31,7 +31,7 @@ app.set('views', `${__dirname}/views`);
 app.set('port', process.env.PORT || 3000);
 
 app.get('/', (req, res) => {
-  res.send('index');
+  res.render('index');
 });
 
 app.post('/shorten', (req, res) => {
