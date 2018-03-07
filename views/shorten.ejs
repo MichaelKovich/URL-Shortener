@@ -1,13 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
+<% include header %>
 
-<head>
-  <title>URL Shortener</title>
-</head>
+  <h1>
+    Success!
+  </h1>
 
-<body>
+  <p class="lead">
+    Here's your shortened link!
+  </p>
+
   <form>
-    <label>Shortened URL:</label>
-    <input type="text" value="<%= link %>" readonly>
+    <div class="input-group">
+      <input type="text" class="form-control form-control-lg" value="<%= link %>" readonly>
+      <span class="input-group-btn">
+        <button class="btn btn-primary btn-lg" type="button" onclick="copyToClipboard()">
+          <i class="fa fa-clipboard"></i>
+        </button>
+      </span>
+    </div>
   </form>
-</body>
+
+  <script>
+    function copyToClipboard() {
+      var input = document.querySelector('input');
+      input.select();
+      if (document.execCommand('copy')) {
+        input.blur();
+      }
+    }
+  </script>
+
+  <% include footer %>
